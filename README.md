@@ -41,7 +41,7 @@ docker-compose run letsgo sh -c "python manage.py scripts"
 - I am not sure whether it is a good practice to leave the logging tool or not, so after each request you will see all SQL commands that was used for the request 
 
 I will really appreciate any suggestions that you can give to me either on improving the code, improving the test, using some tools or adding new features.
-You can text me: duke.imeket@gmail.com
+<br> You can text me: duke.imeket@gmail.com <br>
 or via Reddit: https://www.reddit.com/user/RadiantPersonality58
 
 
