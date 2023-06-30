@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main", "master"]
+    branches: [ "master", "development" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
         docker-compose run -e STRIPE_API_KEY="${{ secrets.STRIPE_API_KEY }}" \
         -e EMAIL_HOST_USER="${{ secrets.EMAIL_HOST_USER }}" \
         -e EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD }}" \
-        web-app sh -c "python manage.py test"
+        letsgo sh -c "python manage.py test"
     - name: Stop containers
       if: always()
       run: docker-compose down
