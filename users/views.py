@@ -5,10 +5,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from common.exceptions import ApiException
+from events.serializers import BookedEventSerializer
 from .serializers import FriendSerializer, UserSerializer, FriendRequestSerializer
 from .models import User, FriendRequest
 from .permissions import IsFriendRequestSenderOrReceiver
 from .parameters import get_event_list_parameter
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+# from django.core.cache import cache
 
 
 @extend_schema(tags=['Users'])
@@ -17,6 +21,14 @@ class UserViewSet(ModelViewSet):
         Prefetch('friends', queryset=User.objects.all().only('id'))
     )
     serializer_class = UserSerializer
+
+    @method_decorator(cache_page(60))
+    def retrieve(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user)
+        booked_events = user.booked_events.all()
+        booked_events_serializer = BookedEventSerializer(booked_events, many=True)
+        return Response({'userInfo': serializer.data, 'booked_events': booked_events_serializer.data})
 
 
 @extend_schema(tags=['Friend Request'])
