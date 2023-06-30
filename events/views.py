@@ -65,15 +65,15 @@ class EventViewSet(ModelViewSet):
         privacy_filter = self.request.query_params.get('event_type', 'public')
         sort_order = self.request.query_params.get('sort_by')
         category_list_filter = self.request.query_params.getlist('category')
-        relation_filter = self.request.query_params.get('relation', 'all')
 
         # Apply privacy field filter
-        if privacy_filter:
-            if self.request.user.is_authenticated:
-                queryset = queryset.filter(event_type=privacy_filter).filter(
-                    created_by__in=self.request.user.friends.all())
-            else:
-                queryset = queryset.filter(event_type="public")
+        if self.request.user.is_authenticated:
+            if privacy_filter not in ('public', 'private'):
+                privacy_filter = 'public'
+
+            queryset = queryset.filter(event_type=privacy_filter)
+            if privacy_filter == 'private':
+                queryset = queryset.filter(created_by__in=self.request.user.friends.all())
 
         queryset = queryset.annotate(rating=Avg('ratings__score'))
 
@@ -86,13 +86,6 @@ class EventViewSet(ModelViewSet):
                 Q(title__icontains=search_query) |
                 Q(created_by__username__icontains=search_query)
             )
-
-        if relation_filter != 'all':
-            user = self.request.user
-            if relation_filter != 'user':
-                queryset = queryset.filter(created_by=user)
-            elif relation_filter != 'friends':
-                queryset = queryset.filter(created_by__friends=user, created_by__friends__private=False)
 
         # Apply sorting
         if sort_order:

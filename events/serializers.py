@@ -8,7 +8,7 @@ class EventSerializer(serializers.ModelSerializer):
         For POST, GET
     '''
     rating = serializers.DecimalField(default=0, max_digits=3, decimal_places=2, read_only=True)
-    # created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Event

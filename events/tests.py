@@ -100,6 +100,7 @@ class EventViewTest(APITestCase):
             description="Description",
             price=15,
             created_by=cls.user,
+            event_type="public",
             seats=100)
 
     def setUp(self):
@@ -116,7 +117,7 @@ class EventViewTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data['count'], 1)
         self.assertContains(response, self.event)
 
     def test_get_individual_model(self):
@@ -193,7 +194,6 @@ class EventViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'Updated Model')
         self.assertEqual(response.data['description'], "Description")
-        # self.assertEqual(response.data['created_by'], self.user.id)
         self.assertEqual(response.data['seats'], 100)
         self.assertEqual(response.data['price'], 15)
 
