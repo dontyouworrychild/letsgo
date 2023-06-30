@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from users.models import User
+from common.utils import send_notification
 from common.exceptions import ApiException
 from common.paginations import StandardResultsSetPagination
 from .models import Event, BookedEvent, Category, Rating
@@ -20,9 +21,10 @@ from .serializers import (
     EventUpdateSerializer,
     CategorySerializer,
     BookedEventSerializer,
+    EventUpdateStatusSerializer,
     RatingSerializer,
 )
-from .permissions import IsEventOwner, IsBookedEventOwner
+from .permissions import IsEventOwnerOrAdmin, IsBookedEventOwner
 from .tasks import send_payment_confirmation
 from .parameters import get_event_list_parameter
 
@@ -43,7 +45,7 @@ class EventViewSet(ModelViewSet):
         if self.action == 'create':
             permission_classes = [IsAuthenticated]
         elif self.action == 'update' or self.action == 'partial_update':
-            permission_classes = [IsEventOwner]
+            permission_classes = [IsEventOwnerOrAdmin]
 
         return [permission() for permission in permission_classes]
 
@@ -56,6 +58,8 @@ class EventViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update']:
+            if self.request.user.is_staff:
+                return EventUpdateStatusSerializer
             return EventUpdateSerializer
 
         return super().get_serializer_class()
@@ -99,6 +103,27 @@ class EventViewSet(ModelViewSet):
             # According to other fields that will be added in the future
 
         return queryset
+
+    def partial_update(self, request, *args, **kwargs):
+        if self.request.user.is_staff:
+            event = self.get_object()
+            title = event.title
+            active_status = request.data.get('active_status')
+
+            with transaction.atomic():
+                if active_status == 'rejected':
+                    send_notification(
+                        event, "Thank you for waiting! Sorry your post was rejected to be shown publicly!")
+                    event.delete()
+                    return Response({"message": f"Unfortunately event with title: '{title}' was rejected"},
+                                    status=status.HTTP_204_NO_CONTENT)
+                elif active_status == 'accepted':
+                    send_notification(event, "Thank you for waiting! Your post is now publicly available!")
+                    # Update the "waiting" status to "accepted"
+                    super().partial_update(request, *args, **kwargs)
+                    return Response({"message": "You have successfully accepted the post with title '{title}'"})
+
+        return super().partial_update(request, *args, **kwargs)
 
     @method_decorator(cache_page(60))
     def retrieve(self, request, *args, **kwargs):

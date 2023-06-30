@@ -13,7 +13,12 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ('id', 'title', 'description', 'price', 'start_time', 'created_by', 'guests', 'event_type', 'rating',
-                  'seats', 'categories')
+                  'seats', 'categories', 'active_status')
+
+    def validate(self, data):
+        if data.get('event_type') == 'private':
+            data['active_status'] = 'accepted'
+        return data
 
 
 class EventUpdateSerializer(serializers.ModelSerializer):
@@ -22,7 +27,17 @@ class EventUpdateSerializer(serializers.ModelSerializer):
     '''
     class Meta:
         model = Event
-        fields = ('id', 'title', 'description', 'price', 'start_time', 'guests', 'seats', 'categories')
+        fields = ('id', 'title', 'description', 'price', 'start_time',
+                  'guests', 'seats', 'categories')
+
+
+class EventUpdateStatusSerializer(serializers.ModelSerializer):
+    '''
+        Admin can update only status
+    '''
+    class Meta:
+        model = Event
+        fields = ('id', 'active_status')
 
 
 class BookedEventSerializer(serializers.ModelSerializer):

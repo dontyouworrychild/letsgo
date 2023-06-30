@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-from .choices import EventStatus, EventType
+from .choices import EventStatus, EventType, PublicEventStatus
 from django.core.exceptions import ValidationError
 
 
@@ -16,6 +16,7 @@ class Event(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     start_time = models.DateTimeField(auto_now=True)
     seats = models.IntegerField(default=0)
+    active_status = models.CharField(choices=PublicEventStatus.choices, default='waiting')
 
     def __str__(self):
         return self.title

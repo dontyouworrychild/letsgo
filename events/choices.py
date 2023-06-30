@@ -10,3 +10,9 @@ class EventStatus(models.TextChoices):
 class EventType(models.TextChoices):
     PRIVATE = 'private', 'Private',
     PUBLIC = 'public', 'Public'
+
+
+class PublicEventStatus(models.TextChoices):
+    WAITING = 'waiting', 'Waiting',
+    ACCEPTED = 'accepted', 'Accepted',
+    REJECTED = 'rejected', 'Rejected'

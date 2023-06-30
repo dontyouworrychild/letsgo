@@ -11,7 +11,8 @@ from events.views import BookedEventViewSet, EventViewSet, CategoryViewSet, Rati
 from users.views import (
     UserViewSet,
     FriendRequestViewSet,
-    FriendViewSet
+    FriendViewSet,
+    NotificationViewSet
 )
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -25,6 +26,7 @@ router.register(r"friends", FriendViewSet)
 router.register(r"booked_events", BookedEventViewSet)
 router.register(r"categories", CategoryViewSet)
 router.register(r"rating", RatingViewSet)
+router.register(r"notifications", NotificationViewSet)
 
 
 schema_view = get_swagger_view(title='API Documentation')

@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from common.exceptions import ApiException
 from events.serializers import BookedEventSerializer
-from .serializers import FriendSerializer, UserSerializer, FriendRequestSerializer
-from .models import User, FriendRequest
+from .serializers import FriendSerializer, UserSerializer, FriendRequestSerializer, NotificationSerializer
+from .models import Notification, User, FriendRequest
 from .permissions import IsFriendRequestSenderOrReceiver
 from .parameters import get_event_list_parameter
 from django.views.decorators.cache import cache_page
@@ -113,3 +113,13 @@ class FriendViewSet(ModelViewSet):
         queryset = user.friends.only('id', 'username', 'first_name', 'last_name')
 
         return queryset
+
+
+class NotificationViewSet(ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ('get', 'post')
+
+    def get_queryset(self):
+        return self.queryset.filter(recipient=self.request.user)

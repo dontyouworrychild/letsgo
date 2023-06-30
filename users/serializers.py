@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, FriendRequest
+from .models import Notification, User, FriendRequest
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -35,3 +35,9 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = ('id', 'receiver', 'sender', 'status')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ('id', 'recipient', 'message', 'is_read')
