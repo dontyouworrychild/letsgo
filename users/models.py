@@ -5,7 +5,6 @@ from .choices import FriendRequestStatus
 
 class User(AbstractUser):
     friends = models.ManyToManyField('User', symmetrical=True, blank=True, null=True)
-    private = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
